@@ -15,6 +15,10 @@ public class ProductController {
 
     Scanner scanner = new Scanner(System.in);
 
+    public ProductController(Scanner scanner) {
+        this.scanner = scanner;
+    }
+
     public void productMenu() throws SQLException {
         while (true) {
             printMenu();

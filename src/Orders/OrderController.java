@@ -19,19 +19,23 @@ public class OrderController {
 
     OrderRepository orderRepository = new OrderRepository();
     OrderService orderService = new OrderService();
+    Scanner scanner = new Scanner(System.in);
+
+    public OrderController(Scanner scanner) {
+        this.scanner = scanner;
+    }
 
     public void orderMenu() throws SQLException {
         String choice;
-        Scanner sc = new Scanner(System.in);
 
         while (true) {
             printOrderMenu();
-            choice = sc.nextLine().trim();
+            choice = scanner.nextLine().trim();
 
             switch (choice) {
                 case "1" -> {
                     System.out.print("Ange ditt kund-ID: ");
-                    int customerId = Integer.parseInt(sc.nextLine());
+                    int customerId = Integer.parseInt(scanner.nextLine());
                     showOrderHistory(customerId);
                 }
                 case "2" -> createNewOrder();

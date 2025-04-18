@@ -13,8 +13,12 @@ public class CustomerController {
     private static final String BOLD = "\u001B[1m";
     private static final String BLUE = "\u001B[34m";
 
-    private final CustomerServies customerServies = new CustomerServies();
-    private final Scanner scanner = new Scanner(System.in);
+    private final CustomerService customerService = new CustomerService();
+    private Scanner scanner = new Scanner(System.in);
+
+    public CustomerController(Scanner scanner) {
+        this.scanner = scanner;
+    }
 
     public void customerMenu() throws SQLException {
         while (true) {
@@ -52,7 +56,7 @@ public class CustomerController {
     }
 
     private void showAllCustomers() throws SQLException {
-        ArrayList<Customer> customers = customerServies.getAllcustomers();
+        ArrayList<Customer> customers = customerService.getAllcustomers();
         if (customers.isEmpty()) {
             System.out.println(RED + "❌ Inga kunder hittades." + RESET);
         } else {
@@ -67,7 +71,7 @@ public class CustomerController {
         System.out.print("Ange kund-ID: ");
         int id = Integer.parseInt(scanner.nextLine());
 
-        Customer c = customerServies.getUserId(id);
+        Customer c = customerService.getUserId(id);
         if (c != null) {
             System.out.printf(GREEN + "✅ Kund hittad: 🆔 %d | 👤 %s | 📧 %s%n" + RESET,
                     c.getCustomer_id(), c.getName(), c.getEmail());
@@ -76,7 +80,7 @@ public class CustomerController {
         }
     }
 
-    private void createNewUser() throws SQLException {
+    public void createNewUser() throws SQLException {
         System.out.print("👤 Namn: ");
         String name = scanner.nextLine();
 
@@ -91,7 +95,7 @@ public class CustomerController {
             return;
         }
 
-        Customer customer = customerServies.addCustomer(name, email, password);
+        Customer customer = customerService.addCustomer(name, email, password);
         if (customer != null) {
             System.out.println(GREEN + "✅ Ny kund skapad: " + customer.getName() + RESET);
         } else {
@@ -106,7 +110,7 @@ public class CustomerController {
         System.out.print("Ny e-post: ");
         String email = scanner.nextLine();
 
-        boolean success = customerServies.updateEmail(userId, email);
+        boolean success = customerService.updateEmail(userId, email);
         if (success) {
             System.out.println(GREEN + "✅ E-post uppdaterad för kund med ID " + userId + RESET);
         } else {
@@ -118,7 +122,7 @@ public class CustomerController {
         System.out.print("Ange ID för kund att ta bort: ");
         int id = Integer.parseInt(scanner.nextLine());
 
-        boolean success = customerServies.deleteUser(id);
+        boolean success = customerService.deleteUser(id);
         if (success) {
             System.out.println(GREEN + "🗑️ Kund med ID " + id + " borttagen." + RESET);
         } else {

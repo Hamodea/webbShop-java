@@ -1,10 +1,9 @@
 package Customers;
 
-import java.lang.runtime.SwitchBootstraps;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class CustomerServies {
+public class CustomerService {
     CustomerRepository customerRepository = new CustomerRepository();
     public  ArrayList<Customer> getAllcustomers() throws SQLException {
         return customerRepository.getAll();
