@@ -50,11 +50,11 @@ public class MainMenu {
             System.out.println("║ 2: Produktmeny                     ║");
             System.out.println("║ 3: Ordermeny                       ║");
             System.out.println("║ 4: Logga in                        ║");
-            System.out.println("║ 5: Registrera ny kund             ║");
+            System.out.println("║ 5: Registrera ny kund              ║");
             if (SessionManager.isLoggedIn()) {
-                System.out.println("║ 6: Visa kundvagn                  ║");
-                System.out.println("║ 7: Recensioner                    ║");
-                System.out.printf("║ Inloggad som: %-20s ║\n", SessionManager.getLoggedInCustomer().getName());
+                System.out.println("║ 6: Visa kundvagn                   ║");
+                System.out.println("║ 7: Recensioner                     ║");
+                System.out.printf(GREEN +"║ Inloggad som: %-20s ║\n", SessionManager.getLoggedInCustomer().getName() + RESET);
             }
 
             System.out.println("║ 0: Avsluta programmet             ║");

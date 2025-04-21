@@ -1,5 +1,7 @@
 package Customers;
 
+import Auth.User;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -98,6 +100,8 @@ public class CustomerController {
         Customer customer = customerService.addCustomer(name, email, password);
         if (customer != null) {
             System.out.println(GREEN + "✅ Ny kund skapad: " + customer.getName() + RESET);
+            User user = customer;
+            user.showUserType();
         } else {
             System.out.println(RED + "❌ Något gick fel vid skapandet." + RESET);
         }
