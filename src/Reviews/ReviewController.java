@@ -1,6 +1,7 @@
 package Reviews;
 
 import Auth.SessionManager;
+import Auth.User;
 import Customers.Customer;
 import java.sql.SQLException;
 import java.util.Scanner;
@@ -42,16 +43,23 @@ public class ReviewController {
     }
 
     private void leaveReview() throws SQLException {
-        Customer customer = SessionManager.getLoggedInCustomer();
-        if (customer == null) {
-            System.out.println(RED + "Du måste vara inloggad för att lämna en recension." + RESET);
+        User user = SessionManager.getLoggedInUser();
+        if (!(user instanceof Customer customer)) {
+            System.out.println(RED + "❌ Endast kunder kan lämna recensioner." + RESET);
             return;
         }
 
         System.out.print("Ange produktens ID: ");
         int productId = Integer.parseInt(scanner.nextLine());
+
         System.out.print("Ge betyg (1-5): ");
         int rating = Integer.parseInt(scanner.nextLine());
+
+        if (rating < 1 || rating > 5) {
+            System.out.println(RED + "❌ Betyget måste vara mellan 1 och 5." + RESET);
+            return;
+        }
+
         System.out.print("Skriv en kommentar: ");
         String comment = scanner.nextLine();
 
@@ -63,6 +71,7 @@ public class ReviewController {
             System.out.println(RED + "❌ Kunde inte spara recensionen." + RESET);
         }
     }
+
 
     private void showAverageRating() throws SQLException {
         System.out.print("Ange produktens ID: ");

@@ -2,8 +2,12 @@ package Cart;
 
 import Auth.SessionManager;
 import Customers.Customer;
-import Products.ProductService;
+import Orders.Order;
+import Orders.OrderProduct;
+import Orders.OrderRepository;
+import Products.ProductRepository;
 import Products.Products;
+import Auth.User;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -11,8 +15,9 @@ import java.util.Scanner;
 
 public class CartController {
     private final Scanner scanner;
-    private final ArrayList<CartItem> cart = new ArrayList<>();
-    private final ProductService productService = new ProductService();
+    private final ProductRepository productRepository = new ProductRepository();
+    private final OrderRepository orderRepository = new OrderRepository();
+    private final ArrayList<OrderProduct> cart = new ArrayList<>();
 
     public CartController(Scanner scanner) {
         this.scanner = scanner;
@@ -36,9 +41,7 @@ public class CartController {
                 case "3" -> removeProduct();
                 case "4" -> updateQuantity();
                 case "5" -> checkout();
-                case "0" -> {
-                    return;
-                }
+                case "0" -> { return; }
                 default -> System.out.println("❌ Ogiltigt val.");
             }
         }
@@ -46,15 +49,13 @@ public class CartController {
 
     private void viewCart() {
         if (cart.isEmpty()) {
-            System.out.println("🛒 Kundvagnen är tom.");
+            System.out.println("Kundvagnen är tom.");
             return;
         }
-
-        System.out.println("\n🛒 Innehåll i kundvagnen:");
-        for (CartItem item : cart) {
-            Products p = item.getProduct();
+        System.out.println("\nInnehåll i kundvagnen:");
+        for (OrderProduct op : cart) {
             System.out.printf("- %s | Antal: %d | Pris/st: %.2f kr | Totalt: %.2f kr\n",
-                    p.getName(), item.getQuantity(), p.getPrice(), item.getTotalPrice());
+                    op.getProduct().getName(), op.getQuantity(), op.getProduct().getPrice(), op.getTotal());
         }
     }
 
@@ -62,56 +63,69 @@ public class CartController {
         System.out.print("Ange produktnamn: ");
         String name = scanner.nextLine();
 
-        Products product = productService.findProductByName(name);
+        Products product = productRepository.getProductByName(name);
         if (product == null) {
-            System.out.println("❌ Produkt hittades inte.");
+            System.out.println("❌ Produkten hittades inte.");
             return;
         }
 
         System.out.print("Ange antal: ");
         int quantity = Integer.parseInt(scanner.nextLine());
-
         if (quantity <= 0 || quantity > product.getStock()) {
-            System.out.println("❌ Ogiltigt antal eller mer än lagersaldo.");
+            System.out.println("❌ Ogiltigt antal eller för stort antal i förhållande till lagersaldo.");
             return;
         }
 
-        for (CartItem item : cart) {
-            if (item.getProduct().getProduct_id() == product.getProduct_id()) {
-                item.setQuantity(item.getQuantity() + quantity);
-                System.out.println("✅ Antalet har uppdaterats.");
+        for (OrderProduct op : cart) {
+            if (op.getProduct().getProduct_id() == product.getProduct_id()) {
+                op.setQuantity(op.getQuantity() + quantity);
+                System.out.println("✅ Antalet uppdaterades i kundvagnen.");
                 return;
             }
         }
 
-        cart.add(new CartItem(product, quantity));
-        System.out.println("✅ Produkten har lagts till i kundvagnen.");
+        cart.add(new OrderProduct(product, quantity));
+        System.out.println("✅ Produkt tillagd i kundvagnen.");
     }
 
     private void removeProduct() {
         System.out.print("Ange produktnamn att ta bort: ");
         String name = scanner.nextLine();
 
-        cart.removeIf(item -> item.getProduct().getName().equalsIgnoreCase(name));
-        System.out.println("🗑️ Produkten har tagits bort (om den fanns).");
+        OrderProduct toRemove = null;
+        for (OrderProduct op : cart) {
+            if (op.getProduct().getName().equalsIgnoreCase(name)) {
+                toRemove = op;
+                break;
+            }
+        }
+
+        if (toRemove != null) {
+            cart.remove(toRemove);
+            System.out.println("✅ Produkten togs bort från kundvagnen.");
+        } else {
+            System.out.println("❌ Produkten finns inte i kundvagnen.");
+        }
     }
 
     private void updateQuantity() {
-        System.out.print("Ange produktnamn för att ändra antal: ");
+        System.out.print("Ange produktnamn: ");
         String name = scanner.nextLine();
 
-        for (CartItem item : cart) {
-            if (item.getProduct().getName().equalsIgnoreCase(name)) {
-                System.out.print("Ange nytt antal: ");
-                int quantity = Integer.parseInt(scanner.nextLine());
+        for (OrderProduct op : cart) {
+            if (op.getProduct().getName().equalsIgnoreCase(name)) {
+                System.out.print("Nytt antal: ");
+                int newQuantity = Integer.parseInt(scanner.nextLine());
 
-                if (quantity <= 0 || quantity > item.getProduct().getStock()) {
+                if (newQuantity <= 0 || newQuantity > op.getProduct().getStock()) {
                     System.out.println("❌ Ogiltigt antal.");
                     return;
                 }
 
-                item.setQuantity(quantity);
-                System.out.println("✔️ Antal uppdaterat.");
+                // Workaround if setQuantity doesn't exist
+                cart.remove(op);
+                cart.add(new OrderProduct(op.getProduct(), newQuantity));
+                System.out.println("✅ Antalet uppdaterat.");
                 return;
             }
         }
@@ -119,25 +133,26 @@ public class CartController {
         System.out.println("❌ Produkten finns inte i kundvagnen.");
     }
 
-    private void checkout() {
-        Customer customer = SessionManager.getLoggedInCustomer();
-        if (customer == null) {
-            System.out.println("🔒 Du måste logga in för att kunna genomföra köp.");
+    private void checkout() throws SQLException {
+        User user = SessionManager.getLoggedInUser();
+        if (user == null || !(user instanceof Customers.Customer customer)) {
+            System.out.println("❌ Du måste vara inloggad som kund för att genomföra köp.");
             return;
         }
 
         if (cart.isEmpty()) {
-            System.out.println("🛒 Din kundvagn är tom.");
+            System.out.println("❌ Kundvagnen är tom.");
             return;
         }
 
-        double total = 0;
-        for (CartItem item : cart) {
-            total += item.getTotalPrice();
-        }
+        Order order = new Order(customer.getCustomer_id(), cart);
+        boolean success = orderRepository.placeOrder(order);
 
-        System.out.printf("💰 Totalt belopp att betala: %.2f kr\n", total);
-        System.out.println("✅ Order skapad! (simulerad)");
-        cart.clear();
+        if (success) {
+            System.out.println("🛒 Order genomförd! Totalt pris: " + order.getTotalPrice() + " kr");
+            cart.clear();
+        } else {
+            System.out.println("❌ Något gick fel vid beställningen.");
+        }
     }
 }

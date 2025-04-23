@@ -47,4 +47,8 @@ public class OrderProduct {
     public double getTotal() {
         return quantity * unitPrice;
     }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
 }

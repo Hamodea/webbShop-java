@@ -1,29 +1,22 @@
 package Auth;
 
-import Customers.Customer;
 
 public class SessionManager {
-    private static Customer loggedInCustomer;
+    private static User loggedInUser;
 
-
-    public static void login(Customer customer){
-        loggedInCustomer = customer;
+    public static void login(User user) {
+        loggedInUser = user;
     }
-
 
     public static void logout() {
-        loggedInCustomer = null;
-    }
-
-    public static Customer getLoggedInCustomer() {
-        return loggedInCustomer;
+        loggedInUser = null;
     }
 
     public static boolean isLoggedIn() {
-        return loggedInCustomer != null;
+        return loggedInUser != null;
     }
 
-
-
+    public static User getLoggedInUser() {
+        return loggedInUser;
+    }
 }
-
