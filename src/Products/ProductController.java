@@ -3,17 +3,14 @@ package Products;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Scanner;
+import static utils.AnsiColors.*;
 
 public class ProductController {
-    // ANSI färgkoder
-    private static final String BLUE = "\u001B[34m";
-    private static final String YELLOW = "\u001B[33m";
-    private static final String RESET = "\u001B[0m";
 
 
     ProductService productService = new ProductService();
 
-    Scanner scanner = new Scanner(System.in);
+    Scanner scanner;
 
     public ProductController(Scanner scanner) {
         this.scanner = scanner;
@@ -31,6 +28,7 @@ public class ProductController {
                 case "4" -> updatePrice();
                 case "5" -> updateStock();
                 case "6" -> addNewProduct();
+                case "7" -> filterByMaxPrice();
                 case "0" -> {
                     System.out.println("🔙 Återgår till huvudmeny.");
                     return;
@@ -42,18 +40,19 @@ public class ProductController {
 
     private void printMenu() {
         System.out.println(BLUE + """
-                **************************************
-                ║            PRODUKTMENY             ║
-                **************************************
-                ║ 1: Visa alla produkter             ║
-                ║ 2: Sök produkt efter namn          ║
-                ║ 3: Sök produkt efter kategori      ║
-                ║ 4: Uppdatera pris                  ║
-                ║ 5: Uppdatera lagersaldo            ║
-                ║ 6: Lägg till ny produkt            ║
-                ║ 0: Tillbaka till huvudmeny         ║
-                **************************************
-                """ + RESET);
+            **************************************
+            ║            PRODUKTMENY             ║
+            **************************************
+            ║ 1: Visa alla produkter             ║
+            ║ 2: Sök produkt efter namn          ║
+            ║ 3: Sök produkt efter kategori      ║
+            ║ 4: Uppdatera pris                  ║
+            ║ 5: Uppdatera lagersaldo            ║
+            ║ 6: Lägg till ny produkt            ║
+            ║ 7: Filtrera produkter (maxpris)    ║
+            ║ 0: Tillbaka till huvudmeny         ║
+            **************************************
+            """ + RESET);
         System.out.print(YELLOW + "Ditt val: " + RESET);
     }
 
@@ -167,4 +166,25 @@ public class ProductController {
             System.out.println("❌ Kunde inte lägga till produkten.");
         }
     }
+
+    private void filterByMaxPrice() throws SQLException {
+        System.out.print("Ange maximalt pris: ");
+        double maxPrice = Double.parseDouble(scanner.nextLine());
+
+        ArrayList<Products> products = productService.getAllProducts();
+
+        ArrayList<Products> filtered = products.stream()
+                .filter(p -> p.getPrice() <= maxPrice)
+                .collect(java.util.stream.Collectors.toCollection(ArrayList::new));
+
+        if (filtered.isEmpty()) {
+            System.out.println("❌ Inga produkter hittades under angivet pris.");
+        } else {
+            filtered.forEach(p ->
+                    System.out.printf("🆔 %d | 📦 %s | 💰 %.2f kr | Lager: %d st%n",
+                            p.getProduct_id(), p.getName(), p.getPrice(), p.getStock())
+            );
+        }
+    }
+
 }

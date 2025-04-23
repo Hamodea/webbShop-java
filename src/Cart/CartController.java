@@ -1,14 +1,13 @@
 package Cart;
 
 import Auth.SessionManager;
-import Customers.Customer;
 import Orders.Order;
 import Orders.OrderProduct;
 import Orders.OrderRepository;
 import Products.ProductRepository;
 import Products.Products;
 import Auth.User;
-
+import static utils.AnsiColors.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -134,7 +133,7 @@ public class CartController {
     }
 
     private void checkout() throws SQLException {
-        User user = SessionManager.getLoggedInUser();
+        User user = SessionManager.getInstance().getLoggedInUser();
         if (user == null || !(user instanceof Customers.Customer customer)) {
             System.out.println("❌ Du måste vara inloggad som kund för att genomföra köp.");
             return;

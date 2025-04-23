@@ -5,16 +5,13 @@ import Auth.User;
 import Customers.Customer;
 import java.sql.SQLException;
 import java.util.Scanner;
+import static utils.AnsiColors.*;
 
 public class ReviewController {
     private Scanner scanner = new Scanner(System.in);
     private final ReviewService reviewService = new ReviewService();
 
-    // ANSI-färger
-    private static final String RESET = "\u001B[0m";
-    private static final String GREEN = "\u001B[32m";
-    private static final String RED = "\u001B[31m";
-    private static final String YELLOW = "\u001B[33m";
+
 
     public ReviewController(Scanner scanner) {
         this.scanner = scanner;
@@ -43,7 +40,7 @@ public class ReviewController {
     }
 
     private void leaveReview() throws SQLException {
-        User user = SessionManager.getLoggedInUser();
+        User user = SessionManager.getInstance().getLoggedInUser();
         if (!(user instanceof Customer customer)) {
             System.out.println(RED + "❌ Endast kunder kan lämna recensioner." + RESET);
             return;

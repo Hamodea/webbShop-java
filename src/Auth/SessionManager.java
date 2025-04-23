@@ -1,22 +1,35 @@
 package Auth;
 
 
-public class SessionManager {
-    private static User loggedInUser;
 
-    public static void login(User user) {
-        loggedInUser = user;
+public class SessionManager {
+    private static SessionManager instance;
+    private User loggedInUser;
+
+    // Privat konstruktor förhindrar att skapa nya instanser utifrån
+    private SessionManager() {}
+
+    // Endast denna metod ger dig instansen
+    public static SessionManager getInstance() {
+        if (instance == null) {
+            instance = new SessionManager();
+        }
+        return instance;
     }
 
-    public static void logout() {
+    public void login(User user) {
+        this.loggedInUser = user;
+    }
+
+    public void logout() {
         loggedInUser = null;
     }
 
-    public static boolean isLoggedIn() {
+    public boolean isLoggedIn() {
         return loggedInUser != null;
     }
 
-    public static User getLoggedInUser() {
+    public User getLoggedInUser() {
         return loggedInUser;
     }
 }

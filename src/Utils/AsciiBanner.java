@@ -1,3 +1,5 @@
+package Utils;
+
 public class AsciiBanner {
     private static final String CYAN = "\u001B[36m";
     private static final String RESET = "\u001B[0m";

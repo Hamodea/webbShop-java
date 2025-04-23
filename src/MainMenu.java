@@ -1,41 +1,35 @@
-package Auth;
-
+import Auth.SessionManager;
+import Auth.User;
 import Cart.CartController;
 import Customers.CustomerController;
-import Customers.CustomerLogin;
+import Auth.UserLogin;
 import Orders.OrderController;
 import Products.ProductController;
 import Reviews.ReviewController;
-import Auth.User;
 import Admin.Admin;
 
 import java.sql.SQLException;
 import java.util.Scanner;
+import static utils.AnsiColors.*;
 
 public class MainMenu {
     private final CustomerController customerController;
     private final Scanner scanner;
     private final ProductController productController;
-    private final CustomerLogin customerLogin;
+    private final UserLogin userLogin;
     private final OrderController orderController;
     private final CartController cartController;
     private final ReviewController reviewController;
 
-    // ANSI färgkoder
-    private static final String RESET = "\u001B[0m";
-    private static final String CYAN = "\u001B[36m";
-    private static final String GREEN = "\u001B[32m";
-    private static final String YELLOW = "\u001B[33m";
-    private static final String RED = "\u001B[31m";
-    private static final String BOLD = "\u001B[1m";
+
 
     public MainMenu(CustomerController customerController, Scanner scanner, ProductController productController,
-                    CustomerLogin customerLogin, OrderController orderController, CartController cartController,
+                    UserLogin userLogin, OrderController orderController, CartController cartController,
                     ReviewController reviewController) {
         this.customerController = customerController;
         this.scanner = scanner;
         this.productController = productController;
-        this.customerLogin = customerLogin;
+        this.userLogin = userLogin;
         this.orderController = orderController;
         this.cartController = cartController;
         this.reviewController = reviewController;
@@ -52,13 +46,13 @@ public class MainMenu {
                 case "2" -> productController.productMenu();
                 case "3" -> orderController.orderMenu();
                 case "4" -> {
-                    if (SessionManager.isLoggedIn()) {
-                        SessionManager.logout();
+                    if (SessionManager.getInstance().isLoggedIn()) {
+                        SessionManager.getInstance().logout();
                         System.out.println(GREEN + "✅ Du är nu utloggad." + RESET);
                     } else {
-                        User user = customerLogin.login();
+                        User user = userLogin.login();
                         if (user != null) {
-                            SessionManager.login(user);
+                            SessionManager.getInstance().login(user);
                             System.out.println(GREEN + "✅ Inloggning lyckades!" + RESET);
                         } else {
                             System.out.println(RED + "❌ Inloggning misslyckades." + RESET);
@@ -67,14 +61,14 @@ public class MainMenu {
                 }
                 case "5" -> customerController.createNewUser();
                 case "6" -> {
-                    if (SessionManager.isLoggedIn()) {
+                    if (SessionManager.getInstance().isLoggedIn()) {
                         cartController.showCartMenu();
                     } else {
                         System.out.println(RED + "❌ Du måste vara inloggad för att se kundvagnen." + RESET);
                     }
                 }
                 case "7" -> {
-                    if (SessionManager.isLoggedIn()) {
+                    if (SessionManager.getInstance().isLoggedIn()) {
                         reviewController.showReviewMenu();
                     } else {
                         System.out.println(RED + "❌ Du måste vara inloggad för att se recensioner." + RESET);
@@ -97,10 +91,10 @@ public class MainMenu {
         System.out.println("║ 1: Kundmeny                        ║");
         System.out.println("║ 2: Produktmeny                     ║");
         System.out.println("║ 3: Ordermeny                       ║");
-        System.out.println("║ 4: " + (SessionManager.isLoggedIn() ? "Logga ut" : "Logga in") + "                        ║");
+        System.out.println("║ 4: " + (SessionManager.getInstance().isLoggedIn() ? "Logga ut" : "Logga in") + "                        ║");
         System.out.println("║ 5: Registrera ny kund              ║");
 
-        if (SessionManager.isLoggedIn()) {
+        if (SessionManager.getInstance().isLoggedIn()) {
             printLoggedInExtras();
         }
 
@@ -113,10 +107,10 @@ public class MainMenu {
         System.out.println("║ 7: Recensioner                     ║");
         System.out.println("╠════════════════════════════════════╣");
 
-        var user = SessionManager.getLoggedInUser();
+        var user = SessionManager.getInstance().getLoggedInUser();
         String role = (user instanceof Admin) ? "🛡️ Admin" : "👤 Kund";
 
-        System.out.println(GREEN + "║ Inloggad som: " + user.getName() + " (" + role + ")     ║" + RESET);
+        System.out.println(GREEN + "║ Inloggad som: " + user.getDisplayName() + " (" + role + ")     ║" + RESET);
 
     }
 }

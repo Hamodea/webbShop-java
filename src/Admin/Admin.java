@@ -2,14 +2,14 @@ package Admin;
 
 import Auth.User;
 
-
 public class Admin extends User {
+    private final String username;
+    private final String password;
 
-    private String role; // valfritt, om du vill särskilja olika admins
-
-    public Admin(int id, String name, String email) {
-        super(id, name, email);
-        this.role = "Admin"; // standardroll
+    public Admin(int id, String username, String password) {
+        super(id);
+        this.username = username;
+        this.password = password;
     }
 
     @Override
@@ -17,7 +17,16 @@ public class Admin extends User {
         System.out.println("🛡️ Detta är en admin.");
     }
 
-    public String getRole() {
-        return role;
+    @Override
+    public String getDisplayName() {
+        return username;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
     }
 }
