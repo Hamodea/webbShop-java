@@ -8,7 +8,7 @@ import java.util.Scanner;
 import static utils.AnsiColors.*;
 
 public class ReviewController {
-    private Scanner scanner = new Scanner(System.in);
+    private final Scanner scanner;
     private final ReviewService reviewService = new ReviewService();
 
 
@@ -19,10 +19,15 @@ public class ReviewController {
 
     public void showReviewMenu() throws SQLException {
         while (true) {
-            System.out.println("\n=============================\nRECENSIONSMENY\n=============================");
-            System.out.println("1. Lämna recension");
-            System.out.println("2. Visa genomsnittligt betyg för en produkt");
-            System.out.println("0. Tillbaka till huvudmeny");
+            System.out.println(BLUE + """
+            **************************************
+            ║         RECENSIONSMENY             ║
+            **************************************
+            ║ 1: Lämna recension                 ║
+            ║ 2: Visa genomsnittligt betyg       ║
+            ║ 0: Tillbaka till huvudmeny         ║
+            **************************************
+            """ + RESET);
             System.out.print(YELLOW + "Ditt val: " + RESET);
 
             String choice = scanner.nextLine().trim();
@@ -31,13 +36,14 @@ public class ReviewController {
                 case "1" -> leaveReview();
                 case "2" -> showAverageRating();
                 case "0" -> {
-                    System.out.println(GREEN + "Tillbaka till huvudmeny..." + RESET);
+                    System.out.println(GREEN + "🔙 Tillbaka till huvudmeny..." + RESET);
                     return;
                 }
-                default -> System.out.println(RED + "Ogiltigt val. Försök igen." + RESET);
+                default -> System.out.println(RED + "❗ Ogiltigt val. Försök igen." + RESET);
             }
         }
     }
+
 
     private void leaveReview() throws SQLException {
         User user = SessionManager.getInstance().getLoggedInUser();
@@ -60,7 +66,7 @@ public class ReviewController {
         System.out.print("Skriv en kommentar: ");
         String comment = scanner.nextLine();
 
-        boolean success = reviewService.addReview(customer.getCustomer_id(), productId, rating, comment);
+        boolean success = reviewService.addReview(customer.getId(), productId, rating, comment);
 
         if (success) {
             System.out.println(GREEN + "✅ Recension sparad!" + RESET);

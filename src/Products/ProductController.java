@@ -7,33 +7,37 @@ import static utils.AnsiColors.*;
 
 public class ProductController {
 
-
     ProductService productService = new ProductService();
-
     Scanner scanner;
 
     public ProductController(Scanner scanner) {
         this.scanner = scanner;
     }
 
-    public void productMenu() throws SQLException {
+    public void productMenu() {
         while (true) {
             printMenu();
             String select = scanner.nextLine();
 
-            switch (select) {
-                case "1" -> showAllProducts();
-                case "2" -> searchByName();
-                case "3" -> searchByCategory();
-                case "4" -> updatePrice();
-                case "5" -> updateStock();
-                case "6" -> addNewProduct();
-                case "7" -> filterByMaxPrice();
-                case "0" -> {
-                    System.out.println("🔙 Återgår till huvudmeny.");
-                    return;
+            try {
+                switch (select) {
+                    case "1" -> showAllProducts();
+                    case "2" -> searchByName();
+                    case "3" -> searchByCategory();
+                    case "4" -> updatePrice();
+                    case "5" -> updateStock();
+                    case "6" -> addNewProduct();
+                    case "7" -> filterByMaxPrice();
+                    case "0" -> {
+                        System.out.println("🔙 Återgår till huvudmeny.");
+                        return;
+                    }
+                    default -> System.out.println(RED + "❗ Ogiltigt menyval." + RESET);
                 }
-                default -> System.out.println("❗ Ogiltigt menyval.");
+            } catch (SQLException e) {
+                System.out.println(RED + "❌ Databasfel: " + e.getMessage() + RESET);
+            } catch (NumberFormatException e) {
+                System.out.println(RED + "❌ Ogiltigt nummerformat." + RESET);
             }
         }
     }
@@ -41,7 +45,7 @@ public class ProductController {
     private void printMenu() {
         System.out.println(BLUE + """
             **************************************
-            ║            PRODUKTMENY             ║
+            ║          📦PRODUKTMENY             ║
             **************************************
             ║ 1: Visa alla produkter             ║
             ║ 2: Sök produkt efter namn          ║
@@ -58,6 +62,10 @@ public class ProductController {
 
     private void showAllProducts() throws SQLException {
         ArrayList<Products> products = productService.getAllProducts();
+        if (products.isEmpty()) {
+            System.out.println(RED + "❌ Inga produkter hittades." + RESET);
+            return;
+        }
         for (Products p : products) {
             System.out.printf("🆔 %d | 📦 %s | 💰 %.2f kr | Lager: %d st\n",
                     p.getProduct_id(), p.getName(), p.getPrice(), p.getStock());
@@ -66,7 +74,11 @@ public class ProductController {
 
     private void searchByName() throws SQLException {
         System.out.print("Ange produktnamn att söka: ");
-        String name = scanner.nextLine();
+        String name = scanner.nextLine().trim();
+        if (name.isBlank()) {
+            System.out.println(RED + "❌ Du måste ange ett produktnamn." + RESET);
+            return;
+        }
         Products product = productService.findProductByName(name);
         if (product != null) {
             System.out.println("✅ Produkt hittad:");
@@ -80,7 +92,11 @@ public class ProductController {
 
     private void searchByCategory() throws SQLException {
         System.out.print("Ange kategorinamn: ");
-        String category = scanner.nextLine();
+        String category = scanner.nextLine().trim();
+        if (category.isBlank()) {
+            System.out.println(RED + "❌ Du måste ange en kategori." + RESET);
+            return;
+        }
         ArrayList<Products> products = productService.findProductByCategory(category);
         if (products.isEmpty()) {
             System.out.println("❌ Inga produkter hittades i kategorin.");
@@ -140,10 +156,10 @@ public class ProductController {
         int manufacturerId = Integer.parseInt(scanner.nextLine());
 
         System.out.print("Produktnamn: ");
-        String name = scanner.nextLine();
+        String name = scanner.nextLine().trim();
 
         System.out.print("Beskrivning: ");
-        String description = scanner.nextLine();
+        String description = scanner.nextLine().trim();
 
         System.out.print("Pris: ");
         double price = Double.parseDouble(scanner.nextLine());
@@ -151,6 +167,10 @@ public class ProductController {
         System.out.print("Lagersaldo: ");
         int stock = Integer.parseInt(scanner.nextLine());
 
+        if (name.isBlank() || description.isBlank()) {
+            System.out.println("❌ Namn och beskrivning får inte vara tomma.");
+            return;
+        }
         if (price < 0 || stock < 0) {
             System.out.println("❌ Pris och lagersaldo måste vara positiva.");
             return;
@@ -186,5 +206,4 @@ public class ProductController {
             );
         }
     }
-
 }

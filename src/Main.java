@@ -1,3 +1,4 @@
+//import Admin.AdminRepository;
 import Auth.UserLogin;
 import Cart.CartController;
 import Customers.CustomerController;
@@ -30,6 +31,11 @@ public class Main {
                 cartController,
                 reviewController
         );
+
+        //AdminRepository repo = new AdminRepository();
+        //repo.addNewAdmin("bill", "admin123");
+        //System.out.println("✅ Testadmin skapad!");
+
 
 
         menu.show();

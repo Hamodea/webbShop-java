@@ -26,9 +26,7 @@ public class CustomerRepository {
         }
         return customers;
     }
-
     public Customer getCustomerById(int customerId) throws SQLException {
-
         String sql = "SELECT * FROM customers WHERE customer_id = ?";
 
         try (Connection conn = DriverManager.getConnection(URL);
@@ -36,9 +34,18 @@ public class CustomerRepository {
 
             pstmt.setInt(1, customerId);
 
-            ResultSet rs = pstmt.executeQuery();
-
-            return new Customer(customerId, rs.getString("name"), rs.getString("email"), rs.getString("password"));
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return new Customer(
+                            customerId,
+                            rs.getString("name"),
+                            rs.getString("email"),
+                            rs.getString("password")
+                    );
+                } else {
+                    return null; // Ingen kund med detta ID
+                }
+            }
         }
     }
 

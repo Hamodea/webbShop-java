@@ -24,14 +24,19 @@ public class CartController {
 
     public void showCartMenu() throws SQLException {
         while (true) {
-            System.out.println("\n===== KUNDVAGN =====");
-            System.out.println("1. Visa kundvagn");
-            System.out.println("2. Lägg till produkt i kundvagn");
-            System.out.println("3. Ta bort produkt");
-            System.out.println("4. Ändra antal");
-            System.out.println("5. Genomför köp");
-            System.out.println("0. Tillbaka till huvudmeny");
-            System.out.print("Ditt val: ");
+            System.out.println(BLUE + """
+            **************************************
+            ║           🛒KUNDVAGN               ║
+            **************************************
+            ║ 1: Visa kundvagn                   ║
+            ║ 2: Lägg till produkt i kundvagn    ║
+            ║ 3: Ta bort produkt                 ║
+            ║ 4: Ändra antal                     ║
+            ║ 5: Genomför köp                    ║
+            ║ 0: Tillbaka till huvudmeny         ║
+            **************************************
+            """ + RESET);
+            System.out.print(YELLOW + "Ditt val: " + RESET);
 
             String choice = scanner.nextLine();
             switch (choice) {
@@ -41,10 +46,11 @@ public class CartController {
                 case "4" -> updateQuantity();
                 case "5" -> checkout();
                 case "0" -> { return; }
-                default -> System.out.println("❌ Ogiltigt val.");
+                default -> System.out.println(RED + "❌ Ogiltigt val." + RESET);
             }
         }
     }
+
 
     private void viewCart() {
         if (cart.isEmpty()) {
@@ -121,7 +127,6 @@ public class CartController {
                     return;
                 }
 
-                // Workaround if setQuantity doesn't exist
                 cart.remove(op);
                 cart.add(new OrderProduct(op.getProduct(), newQuantity));
                 System.out.println("✅ Antalet uppdaterat.");
@@ -134,7 +139,7 @@ public class CartController {
 
     private void checkout() throws SQLException {
         User user = SessionManager.getInstance().getLoggedInUser();
-        if (user == null || !(user instanceof Customers.Customer customer)) {
+        if (!(user instanceof Customers.Customer customer)) {
             System.out.println("❌ Du måste vara inloggad som kund för att genomföra köp.");
             return;
         }
@@ -144,7 +149,7 @@ public class CartController {
             return;
         }
 
-        Order order = new Order(customer.getCustomer_id(), cart);
+        Order order = new Order(customer.getId(), cart);
         boolean success = orderRepository.placeOrder(order);
 
         if (success) {

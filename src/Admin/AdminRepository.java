@@ -8,7 +8,7 @@ public class AdminRepository {
 
     public ArrayList<Admin> getAll() throws SQLException {
         ArrayList<Admin> admins = new ArrayList<>();
-        String sql = "SELECT * FROM admin";
+        String sql = "SELECT * FROM admins";
 
         try (Connection conn = DriverManager.getConnection(URL);
              Statement stmt = conn.createStatement();
@@ -28,7 +28,7 @@ public class AdminRepository {
     }
 
     public Admin findAdmin(String username, String password) throws SQLException {
-        String sql = "SELECT * FROM admin WHERE username = ? AND password = ?";
+        String sql = "SELECT * FROM admins WHERE username = ? AND password = ?";
 
         try (Connection conn = DriverManager.getConnection(URL);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -49,4 +49,26 @@ public class AdminRepository {
 
         return null; // Om ingen admin hittas
     }
+
+    public Admin addNewAdmin(String username, String password) throws SQLException {
+        String sql = "INSERT INTO admins (username, password) VALUES (?, ?)";
+
+        try (Connection conn = DriverManager.getConnection(URL);
+             PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            pstmt.setString(1, username);
+            pstmt.setString(2, password);
+            pstmt.executeUpdate();
+
+            try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    int adminId = generatedKeys.getInt(1);
+                    return new Admin(adminId, username, password);
+                } else {
+                    throw new SQLException("⚠️ Skapandet av admin misslyckades – inget ID returnerat.");
+                }
+            }
+        }
+    }
+
 }
