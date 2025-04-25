@@ -14,7 +14,7 @@ public class OrderController {
 
     OrderRepository orderRepository = new OrderRepository();
     OrderService orderService = new OrderService();
-    Scanner scanner = new Scanner(System.in);
+    Scanner scanner ;
 
     public OrderController(Scanner scanner) {
         this.scanner = scanner;
@@ -76,7 +76,6 @@ public class OrderController {
     }
 
     private void createNewOrder() throws SQLException {
-        Scanner scanner = new Scanner(System.in);
         ArrayList<OrderProduct> orderItems = new ArrayList<>();
 
         System.out.print("Ange kundens ID: ");
@@ -91,7 +90,6 @@ public class OrderController {
             System.out.print("Ange antal: ");
             int quantity = Integer.parseInt(scanner.nextLine());
 
-            // Hämta produktinfo från databasen
             Products product = orderService.getProductById(productId);
             if (product == null) {
                 System.out.println("❌ Produkten hittades inte.");
@@ -108,20 +106,22 @@ public class OrderController {
         }
 
         if (orderItems.isEmpty()) {
-            System.out.println("⚠️ Ingen produkt valdes. Avbryter order.");
+            System.out.println("⚠️ Ingen produkt valdes. Order avbröts.");
             return;
         }
 
         Order order = new Order(customerId, orderItems);
-        boolean success = orderService.placeOrder(order);
+        int orderId = orderService.placeOrder(order); //
 
-        if (success) {
-            System.out.println("✅ Order har lagts!");
+        if (orderId > 0) {
+            System.out.println("✅ Order har lagts med ID: " + orderId);
             System.out.printf("💰 Totalsumma: %.2f kr\n", order.getTotalPrice());
         } else {
             System.out.println("❌ Något gick fel vid orderläggning.");
         }
     }
+
+
 
 
 

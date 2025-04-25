@@ -11,6 +11,7 @@ public abstract class User {
         return id;
     }
 
-    public abstract String getDisplayName();  // t.ex. "Mohmad" eller "admin123"
-    public abstract void showUserType();
+    public abstract String getDisplayName();  //
+
+    public abstract String showUserType();
 }

@@ -22,8 +22,8 @@ public class OrderRepository {
                     WHERE o.customer_id = ?
                     ORDER BY o.order_id;
                 """;
-        try(Connection conn = DriverManager.getConnection(URL);
-            PreparedStatement pstmt = conn.prepareStatement(sql)){
+        try (Connection conn = DriverManager.getConnection(URL);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, customerId);
             ResultSet rs = pstmt.executeQuery();
 
@@ -64,50 +64,46 @@ public class OrderRepository {
 
     }
 
-    public boolean placeOrder(Order order) throws SQLException {
-        String insertOrderSql = "INSERT INTO orders (customer_id) VALUES (?)";
-        String insertOrderProductSql = """
-        INSERT INTO orders_products (order_id, product_id, quantity, unit_price)
-        VALUES (?, ?, ?, ?)
-    """;
+    public int saveOrder(Order order) throws SQLException {
+        String insertOrderSQL = "INSERT INTO orders(customer_id) VALUES(?)";
+        String insertProductSQL = "INSERT INTO orders_products(order_id, product_id, quantity, unit_price) VALUES (?, ?, ?, ?)";
 
         try (Connection conn = DriverManager.getConnection(URL)) {
-            conn.setAutoCommit(false); // Starta transaktion
+            conn.setAutoCommit(false);
 
             try (
-                    PreparedStatement orderStmt = conn.prepareStatement(insertOrderSql, Statement.RETURN_GENERATED_KEYS);
-                    PreparedStatement productStmt = conn.prepareStatement(insertOrderProductSql)
+                    PreparedStatement orderStmt = conn.prepareStatement(insertOrderSQL, Statement.RETURN_GENERATED_KEYS);
+                    PreparedStatement itemStmt = conn.prepareStatement(insertProductSQL)
             ) {
-                // 1. Spara order
+                // Lägg till i orders
                 orderStmt.setInt(1, order.getCustomerId());
                 orderStmt.executeUpdate();
 
-                ResultSet rs = orderStmt.getGeneratedKeys();
-                if (rs.next()) {
-                    int orderId = rs.getInt(1);
+                ResultSet keys = orderStmt.getGeneratedKeys();
+                if (keys.next()) {
+                    int orderId = keys.getInt(1);
 
-                    // 2. Spara varje produkt i orders_products
                     for (OrderProduct item : order.getItems()) {
-                        productStmt.setInt(1, orderId);
-                        productStmt.setInt(2, item.getProduct().getProduct_id());
-                        productStmt.setInt(3, item.getQuantity());
-                        productStmt.setDouble(4, item.getUnitPrice());
-                        productStmt.addBatch();
+                        itemStmt.setInt(1, orderId);
+                        itemStmt.setInt(2, item.getProduct().getProduct_id());
+                        itemStmt.setInt(3, item.getQuantity());
+                        itemStmt.setDouble(4, item.getProduct().getPrice());
+                        itemStmt.addBatch();
                     }
 
-                    productStmt.executeBatch(); // Skicka allt till databasen
+                    itemStmt.executeBatch();
                     conn.commit();
-                    System.out.println("✅ Ordern har sparats med ID: " + orderId);
+                    return orderId;
                 } else {
                     conn.rollback();
-                    throw new SQLException("❌ Kunde inte generera order_id.");
+                    return -1;
                 }
-
             } catch (SQLException e) {
                 conn.rollback();
                 throw e;
             }
         }
-        return false;
     }
+
 }
+

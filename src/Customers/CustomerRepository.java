@@ -77,9 +77,11 @@ public class CustomerRepository {
 
             pstmt.setString(1, newEmail);
             pstmt.setInt(2, customerId);
-            pstmt.executeUpdate();
+
+            int rowUpdate = pstmt.executeUpdate();
+            return rowUpdate > 0;
         }
-        return false;
+
     }
 
     public boolean deleteCustomer(int customer_id) throws SQLException{
@@ -89,10 +91,11 @@ public class CustomerRepository {
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, customer_id);
-            pstmt.executeUpdate();
+
+            int rowDeleted = pstmt.executeUpdate();
+            return rowDeleted > 0;
 
         }
-        return false;
 
     }
 

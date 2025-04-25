@@ -2,6 +2,7 @@ package Products;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 public class ProductService {
 
@@ -33,6 +34,13 @@ public class ProductService {
 
     public Products addProduct( int manufacturer_id, String name, String description, double price, int stock_quantity) throws SQLException{
         return  productRepository.addNewProduct(manufacturer_id, name, description, price, stock_quantity);
+    }
+
+    public ArrayList<Products> getProductsByMaxPrice(double maxPrice) throws SQLException {
+        ArrayList<Products> allProducts = productRepository.getAll(); // hämta alla produkter
+        return allProducts.stream()
+                .filter(p -> p.getPrice() <= maxPrice)
+                .collect(Collectors.toCollection(ArrayList::new)); // filtrera listan
     }
 
 

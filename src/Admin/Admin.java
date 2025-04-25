@@ -13,8 +13,8 @@ public class Admin extends User {
     }
 
     @Override
-    public void showUserType() {
-        System.out.println("🛡️ Detta är en admin.");
+    public String showUserType() {
+        return "🛡️ Admin";
     }
 
     @Override

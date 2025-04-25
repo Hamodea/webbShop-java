@@ -121,7 +121,7 @@ public class ProductRepository {
 
             int affectedRows = pstmt.executeUpdate();
             System.out.println("row har uppdatera" + affectedRows);
-            return affectedRows > 0; // true om något faktiskt uppdaterades
+            return affectedRows > 0;
         }
     }
 
@@ -158,7 +158,7 @@ public class ProductRepository {
             if (rows > 0) {
                 ResultSet keys = pstmt.getGeneratedKeys();
                 if (keys.next()) {
-                    int generatedId = keys.getInt(1); // 🔑 Det nya produkt-ID:t från databasen
+                    int generatedId = keys.getInt(1); //  Det nya produkt-ID:t från databasen
                     return new Products(generatedId, manufacturer_id, name, description, price, stock_quantity);
                 }
             }
@@ -166,7 +166,11 @@ public class ProductRepository {
             return null;
         }
 
+
+
     }
+
+
 
 
 

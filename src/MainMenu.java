@@ -6,7 +6,8 @@ import Auth.UserLogin;
 import Orders.OrderController;
 import Products.ProductController;
 import Reviews.ReviewController;
-import Admin.Admin;
+
+import Utils.ExitBanner;
 
 import java.sql.SQLException;
 import java.util.Scanner;
@@ -76,6 +77,8 @@ public class MainMenu {
                 }
                 case "0" -> {
                     System.out.println(RED + "🛑 Programmet avslutas..." + RESET);
+                    System.out.println(GREEN + ExitBanner.endArt());
+
                     return;
                 }
                 default -> System.out.println(RED + "❗ Ogiltigt val. Försök igen." + RESET);
@@ -85,7 +88,7 @@ public class MainMenu {
 
     private void printMainMenu() {
         System.out.println(BOLD + CYAN + "\n╔════════════════════════════════════╗");
-        System.out.println("║           HUVUDMENY                ║");
+        System.out.println("║             HUVUDMENY              ║");
         System.out.println("╠════════════════════════════════════╣");
 
         System.out.println("║ 1: Kundmeny                        ║");
@@ -107,10 +110,10 @@ public class MainMenu {
         System.out.println("║ 7: Recensioner                     ║");
         System.out.println("╠════════════════════════════════════╣");
 
-        var user = SessionManager.getInstance().getLoggedInUser();
-        String role = (user instanceof Admin) ? "🛡️ Admin" : "👤 Kund";
+        User user = SessionManager.getInstance().getLoggedInUser();
+        System.out.println(GREEN + "║ Inloggad som: " + user.getDisplayName() +  user.showUserType() +"        ║" + RESET);
+        user.showUserType();
 
-        System.out.println(GREEN + "║ Inloggad som: " + user.getDisplayName() + " (" + role + ")     ║" + RESET);
 
     }
 }

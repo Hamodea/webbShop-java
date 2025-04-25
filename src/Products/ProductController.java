@@ -191,11 +191,7 @@ public class ProductController {
         System.out.print("Ange maximalt pris: ");
         double maxPrice = Double.parseDouble(scanner.nextLine());
 
-        ArrayList<Products> products = productService.getAllProducts();
-
-        ArrayList<Products> filtered = products.stream()
-                .filter(p -> p.getPrice() <= maxPrice)
-                .collect(java.util.stream.Collectors.toCollection(ArrayList::new));
+        ArrayList<Products> filtered = productService.getProductsByMaxPrice(maxPrice);
 
         if (filtered.isEmpty()) {
             System.out.println("❌ Inga produkter hittades under angivet pris.");

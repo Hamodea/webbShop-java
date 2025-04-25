@@ -15,8 +15,8 @@ public class Customer extends User {
     }
 
     @Override
-    public void showUserType() {
-        System.out.println("👤 Detta är en kund.");
+    public String showUserType() {
+        return "👤 Kund";
     }
 
     @Override

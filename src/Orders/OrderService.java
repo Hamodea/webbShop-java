@@ -16,8 +16,8 @@ public class OrderService {
         return orderRepository.getOrderHistoryByCustomerId(customerId);
     }
 
-    public boolean placeOrder(Order order) throws SQLException {
-        return orderRepository.placeOrder(order);
+    public int placeOrder(Order order) throws SQLException {
+        return orderRepository.saveOrder(order);
     }
 
     public Products getProductById(int productId) throws SQLException {

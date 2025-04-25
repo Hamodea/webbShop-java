@@ -32,9 +32,6 @@ public class Main {
                 reviewController
         );
 
-        //AdminRepository repo = new AdminRepository();
-        //repo.addNewAdmin("bill", "admin123");
-        //System.out.println("✅ Testadmin skapad!");
 
 
 

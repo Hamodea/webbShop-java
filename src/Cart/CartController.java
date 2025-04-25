@@ -150,13 +150,15 @@ public class CartController {
         }
 
         Order order = new Order(customer.getId(), cart);
-        boolean success = orderRepository.placeOrder(order);
+        int orderId = orderRepository.saveOrder(order);
 
-        if (success) {
-            System.out.println("🛒 Order genomförd! Totalt pris: " + order.getTotalPrice() + " kr");
+        if (orderId > 0) {
+            System.out.println("🛒 Order genomförd! Order-ID: " + orderId);
+            System.out.printf("💰 Totalt pris: %.2f kr\n", order.getTotalPrice());
             cart.clear();
         } else {
             System.out.println("❌ Något gick fel vid beställningen.");
         }
     }
+
 }
